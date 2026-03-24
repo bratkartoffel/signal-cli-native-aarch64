@@ -1,0 +1,57 @@
+name: Docker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '51 23 * * 0'
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build artifact
+        uses: uraimo/run-on-arch-action@d94c13912ea685de38fccc1109385b83fd79427d # v3.0.1
+        with:
+          arch: aarch64
+          distro: ubuntu24.04
+          githubToken: ${{ github.token }}
+          setup: |
+            mkdir -p "${PWD}/artifacts"
+          dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
+          env: |
+            SIGNAL_CLI_VERSION: 0.14.1
+            JAVA_VERSION: 25
+          shell: /bin/bash
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y build-essential zlib1g-dev curl
+            mkdir /opt/graalvm
+            curl https://download.oracle.com/graalvm/${JAVA_VERSION}/latest/graalvm-jdk-${JAVA_VERSION}_linux-${ARCH}_bin.tar.gz | tar --strip-components 1 --directory /opt/graalvm -xzf -
+          run: |
+            export PATH="/opt/graalvm:$PATH"
+            mkdir /opt/signal-cli
+            curl https://github.com/AsamK/signal-cli/archive/refs/tags/v${SIGNAL_CLI_VERSION}.tar.gz | tar --strip-components 1 --directory /opt/signal-cli -xzf -
+            cd /opt/signal-cli
+            ./gradlew nativeCompile
+            cp -v build/native/nativeCompile/signal-cli /artifacts
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: artifacts/signal-cli
+
