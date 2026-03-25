@@ -13,6 +13,7 @@ jobs:
 
     env:
       SIGNAL_CLI_VERSION: 'v0.14.1'
+      LIB_SIGNAL_VERSION: '0.87.5'
 
     steps:
       - name: Harden Runner
@@ -37,8 +38,27 @@ jobs:
           ref: ${{ env.SIGNAL_CLI_VERSION }}
           fetch-depth: 1
 
+      - name: Cache patched libsignal-client library
+        id: cache-native-lib
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: /opt/libsignal
+          key: ${{ runner.os }}-build-${{ env.SIGNAL_CLI_VERSION }}-${{ env.LIB_SIGNAL_VERSION }}
+
+      - name: Download libsignal and native library
+        if: ${{ steps.cache-native-lib.outputs.cache-hit != 'true' }}
+        run: |
+          mkdir /opt/libsignal
+          cd /tmp
+          curl -Lo libsignal-client.jar  https://build-artifacts.signal.org/libraries/maven/org/signal/libsignal-client/${{ env.LIB_SIGNAL_VERSION }}/libsignal-client-${{ env.LIB_SIGNAL_VERSION }}.jar
+          curl -Lo native.tgz https://github.com/exquo/signal-libs-build/releases/download/libsignal_v${{ env.LIB_SIGNAL_VERSION }}/libsignal_jni.so-v${{ env.LIB_SIGNAL_VERSION }}-aarch64-unknown-linux-gnu.tar.gz
+          tar -xf native.tgz
+          zip libsignal-client.jar -d '*signal_jni*'
+          zip libsignal-client.jar -uj libsignal_jni.so
+          cp libsignal-client.jar /opt/libsignal/libsignal-client.jar
+
       - name: Build artifact
-        run: ./gradlew nativeCompile
+        run: ./gradlew --no-daemon -Plibsignal_client_path=/opt/libsignal/libsignal-client.jar nativeCompile
 
       - name: Upload artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
