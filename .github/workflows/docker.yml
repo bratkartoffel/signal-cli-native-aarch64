@@ -74,3 +74,11 @@ jobs:
         with:
           path: build/native/nativeCompile/signal-cli
 
+      - name: Create release
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
+        with:
+            file: build/native/nativeCompile/signal-cli
+            tag: ${{ env.SIGNAL_CLI_VERSION }}-${{ env.LIB_SIGNAL_VERSION }}
+            overwrite: true
+            body: "Automatic release"
+            release_name: ${{ env.SIGNAL_CLI_VERSION }}-${{ env.LIB_SIGNAL_VERSION }}
