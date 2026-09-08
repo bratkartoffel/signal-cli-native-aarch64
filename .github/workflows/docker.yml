@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04-arm
     permissions:
-      contents: read
+      contents: write
 
     env:
       SIGNAL_CLI_VERSION: 'v0.14.7'
@@ -80,5 +80,4 @@ jobs:
             file: build/native/nativeCompile/signal-cli
             tag: ${{ env.SIGNAL_CLI_VERSION }}-${{ env.LIB_SIGNAL_VERSION }}
             overwrite: true
-            body: "Automatic release"
-            release_name: ${{ env.SIGNAL_CLI_VERSION }}-${{ env.LIB_SIGNAL_VERSION }}
+            body: "Automatic release ${{ env.SIGNAL_CLI_VERSION }}"
