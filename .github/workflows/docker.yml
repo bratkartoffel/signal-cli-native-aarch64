@@ -12,8 +12,8 @@ jobs:
       contents: write
 
     env:
-      SIGNAL_CLI_VERSION: 'v0.14.7'
-      LIB_SIGNAL_VERSION: '0.99.1'
+      SIGNAL_CLI_VERSION: 'v0.14.8'
+      LIB_SIGNAL_VERSION: '0.102.1'
 
     steps:
       - name: Harden Runner
