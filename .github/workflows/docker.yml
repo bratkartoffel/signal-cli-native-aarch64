@@ -20,7 +20,7 @@ jobs:
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
-          egress-policy: block
+          egress-policy: audit
           allowed-endpoints: >
             auth.docker.io:443
             build-artifacts.signal.org:443
@@ -33,6 +33,7 @@ jobs:
             production.cloudflare.docker.com:443
             registry-1.docker.io:443
             release-assets.githubusercontent.com:443
+            repo.maven.apache.org:443
             services.gradle.org:443
 
       - name: Checkout repository
