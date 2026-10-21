@@ -20,8 +20,9 @@ jobs:
         uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           disable-sudo: true
-          egress-policy: audit
+          egress-policy: block
           allowed-endpoints: >
+            api.github.com:443
             auth.docker.io:443
             build-artifacts.signal.org:443
             download.oracle.com:443
@@ -35,6 +36,7 @@ jobs:
             release-assets.githubusercontent.com:443
             repo.maven.apache.org:443
             services.gradle.org:443
+            uploads.github.com:443
 
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
