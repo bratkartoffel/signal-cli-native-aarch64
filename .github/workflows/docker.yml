@@ -23,6 +23,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             auth.docker.io:443
+            build-artifacts.signal.org:443
             download.oracle.com:443
             ghcr.io:443
             github.com:443
